@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+    nodejs:
+      build:
+        context: ./app
+        dockerfile: Dockerfile
+      image: tiago/nodejs-server-hurb-challenge-test 
+      container_name: nodejs-server-hurb-test
+      ports:
+        - "8888:8888"
+      networks:
+        - app-network
+    webserver:
+      build:
+        context: ./nginx
+        dockerfile: Dockerfile
+      image: nginx-hurb
+      container_name: nginx-server
+      ports:
+        - "80:80"
+      volumes:
+        - ./nginx:/etc/nginx/conf.d
+      depends_on:
+        - nodejs
+      networks:
+        - app-network
+    mysql:
+      build:
+         context: ./mysql
+         dockerfile: Dockerfile
+      image: mysql-hurb 
+      container_name: mysql-db
+      ports:
+        - "3306:3306"
+      environment:
+        MYSQL_ROOT_PASSWORD: passwords
+        MYSQL_USER: user_packages
+        MYSQL_PASSWORD: passwords
+        MYSQL_DATABASE: packages
+      networks:
+        - app-network
+networks:
+    app-network:
